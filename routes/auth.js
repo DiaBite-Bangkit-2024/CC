@@ -141,23 +141,50 @@ router.post("/user-profile", (req, res) => {
 router.post("/login", (req, res) => {
     const { email, password } = req.body;
 
-    const query = "SELECT * FROM register WHERE is_verified = 1";
+    const query = "SELECT * FROM register WHERE email = ?";
     db.query(query, [email], async (err, results) => {
-        if (err) return res.status(500).json({ message: "User not registered" });
+        let response = {
+            loginResult: {},
+            message: "",
+            error: "",
+        }
+        let resStatus = 200
+
+        if (err) {
+            response.error = "User not registered";
+            resStatus = 500
+            return res.status(resStatus).json(response)
+        }
 
         if (results.length === 0) {
-            return res.status(404).json({ message: "Invalid email or password" });
+            resStatus = 404
+            response.error = "Invalid email or password";
+            return res.status(resStatus).json(response)
         }
 
         const user = results[0];
 
+        if (user.is_verified == 0) {
+            resStatus = 403
+            response.error = "Your account not verified yet";
+            return res.status(resStatus).json(response)
+        }
+
         const isMatch = await comparePassword(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: "Invalid email or password" });
+            resStatus = 400
+            response.error = "Invalid email or password";
+            return res.status(resStatus).json(response)
         }
 
         const token = generateToken({ email: user.email });
-        res.status(200).json({ message: "Login successful", token });
+        response.message = "Login successful";
+        response.loginResult = {
+            name: user.name,
+            userId: user.id,
+            token,
+        }
+        return res.status(resStatus).json(response)
     });
 });
 
