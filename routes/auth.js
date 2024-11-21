@@ -146,19 +146,21 @@ router.post("/login", (req, res) => {
         let response = {
             loginResult: {},
             message: "",
-            error: "",
+            error: false,
         }
         let resStatus = 200
 
         if (err) {
-            response.error = "User not registered";
+            response.message = "User not registered";
+            response.error = true;
             resStatus = 500
             return res.status(resStatus).json(response)
         }
 
         if (results.length === 0) {
+            response.error = true;
             resStatus = 404
-            response.error = "Invalid email or password";
+            response.message = "Invalid email or password";
             return res.status(resStatus).json(response)
         }
 
@@ -166,14 +168,16 @@ router.post("/login", (req, res) => {
 
         if (user.is_verified == 0) {
             resStatus = 403
-            response.error = "Your account not verified yet";
+            response.error = true;
+            response.message = "Your account not verified yet";
             return res.status(resStatus).json(response)
         }
 
         const isMatch = await comparePassword(password, user.password);
         if (!isMatch) {
             resStatus = 400
-            response.error = "Invalid email or password";
+            response.error = true;
+            response.message = "Invalid email or password";
             return res.status(resStatus).json(response)
         }
 
