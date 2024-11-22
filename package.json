@@ -12,7 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tensorflow/tfjs-tflite": "^0.0.1-alpha.10",
     "bcryptjs": "^2.4.3",
     "csv-parse": "^5.6.0",
     "dotenv": "^16.4.5",
