@@ -49,9 +49,9 @@ router.post("/register", async (req, res) => {
         db.query(query, [email, name, hashedPassword, otp], (err, result) => {
             if (err) {
                 if (err.code === "ER_DUP_ENTRY") {
-                    return res.status(400).json({ message: "User already exists" });
+                    return res.status(400).json({ message: "User already exists", error: true });
                 }
-                return res.status(500).json({ message: "Database error" });
+                return res.status(500).json({ message: "Database error", error: true });
             }
 
             // Send OTP email
@@ -60,7 +60,7 @@ router.post("/register", async (req, res) => {
             res.status(201).json({ message: "User registered successfully. OTP sent to email." });
         });
     } catch (error) {
-        res.status(500).json({ message: "Error processing request" });
+        res.status(500).json({ message: "Error processing request", error: true});
     }
 });
 
@@ -71,10 +71,10 @@ router.post("/verify-otp", (req, res) => {
     // Check if OTP matches in the database
     const query = "SELECT * FROM register WHERE email = ?";
     db.query(query, [email], (err, results) => {
-        if (err) return res.status(500).json({ message: "Database error" });
+        if (err) return res.status(500).json({ message: "Database error", error: true});
 
         if (results.length === 0) {
-            return res.status(400).json({ message: "User not found" });
+            return res.status(400).json({ message: "User not found", error: true});
         }
 
         const user = results[0];
@@ -86,13 +86,13 @@ router.post("/verify-otp", (req, res) => {
             db.query(updateQuery, [1, email], (updateErr, updateResult) => {
                 if (updateErr) {
                     console.error("Error updating OTP status:", updateErr);
-                    return res.status(500).json({ message: "Error updating OTP status" });
+                    return res.status(500).json({ message: "Error updating OTP status", error: true });
                 }
 
                 res.status(200).json({ message: "OTP verified successfully! Please provide user profile data." });
             });
         } else {
-            res.status(400).json({ message: "Invalid OTP" });
+            res.status(400).json({ message: "Invalid OTP", error: true });
         }
     });
 });
@@ -103,17 +103,17 @@ router.post("/user-profile", (req, res) => {
 
     const query = "SELECT * FROM register WHERE email = ?";
     db.query(query, [email], async (err, results) => {
-        if (err) return res.status(500).json({ message: "Database error" });
+        if (err) return res.status(500).json({ message: "Database error", error: true });
 
         if (results.length === 0) {
-            return res.status(400).json({ message: "User not found" });
+            return res.status(400).json({ message: "User not found", error: true });
         }
 
         const user = results[0];
 
         // Check if OTP is verified (use `is_verified` column)
         if (!user.is_verified) {
-            return res.status(400).json({ message: "OTP not verified. Please verify OTP first." });
+            return res.status(400).json({ message: "OTP not verified. Please verify OTP first.", error: true });
         }
 
         // Save user profile
@@ -130,7 +130,7 @@ router.post("/user-profile", (req, res) => {
         `;
         
         db.query(profileQuery, [user.id, age, gender, weight, height, systolic, diastolic], (err, result) => {
-            if (err) return res.status(500).json({ message: "Database error" });
+            if (err) return res.status(500).json({ message: "Database error", error: true });
 
             res.status(201).json({ message: "User profile saved successfully" });
         });
@@ -200,10 +200,10 @@ router.post("/resend-otp", (req, res) => {
     // Periksa apakah pengguna terdaftar
     const query = "SELECT * FROM register WHERE email = ?";
     db.query(query, [email], (err, results) => {
-        if (err) return res.status(500).json({ message: "Database error" });
+        if (err) return res.status(500).json({ message: "Database error", error: true });
 
         if (results.length === 0) {
-            return res.status(400).json({ message: "User not found" });
+            return res.status(400).json({ message: "User not found", error: true });
         }
 
         const user = results[0];
@@ -216,7 +216,7 @@ router.post("/resend-otp", (req, res) => {
         db.query(updateQuery, [otp, email], (updateErr, updateResult) => {
             if (updateErr) {
                 console.error("Error updating OTP:", updateErr);
-                return res.status(500).json({ message: "Error updating OTP" });
+                return res.status(500).json({ message: "Error updating OTP", error: true });
             }
 
             // Kirim ulang OTP ke email
