@@ -1,2 +1,3 @@
-node_modules/
-.env
+nodexpress-api/node_modules/
+nodexpress-api/.env
+.prettierrc

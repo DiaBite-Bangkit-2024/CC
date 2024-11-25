@@ -66,8 +66,8 @@ router.post("/register", async (req, res) => {
           .json({ message: "Database error: " + err, error: true });
       }
 
-      const verificationUrl = `http://${process.env.IP}:${
-        process.env.PORT
+      const verificationUrl = `${
+        process.env.EXPRESS_URL
       }/auth/verify-otp?email=${encodeURIComponent(
         email
       )}&otp=${encodeURIComponent(otp)}`;
@@ -75,8 +75,7 @@ router.post("/register", async (req, res) => {
       sendOTP(email, otp, verificationUrl);
 
       res.status(201).json({
-        message:
-          "User registered successfully. OTP and verification URL sent to email.",
+        message: "User registered successfully. OTP sent to email.",
         verificationUrl,
       });
     });
@@ -272,8 +271,8 @@ router.post("/resend-otp", (req, res) => {
       }
 
       // Kirim ulang OTP ke email
-      const verificationUrl = `http://${process.env.IP}:${
-        process.env.PORT
+      const verificationUrl = `${
+        process.env.EXPRESS_URL
       }/auth/verify-otp?email=${encodeURIComponent(
         email
       )}&otp=${encodeURIComponent(otp)}`;

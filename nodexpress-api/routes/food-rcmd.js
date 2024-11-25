@@ -4,6 +4,7 @@ const router = express.Router();
 
 loadCluster()
   .then((clusterData) => {
+    console.log("Food Recommendation Ready!");
     router.get("/", async (req, res) => {
       const tags = req.body.tags || req.query.tags || req.header.tags || ["-"];
 

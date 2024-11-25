@@ -1,0 +1,37 @@
+{
+  "desc": {
+    "HighBP": "Blood Pressure: 0 = no high BP 1 = high BP",
+    "BMI": "Body Mass Index",
+    "GenHlth": "Would you say that in general your health is: scale 1-5 1 = excellent 2 = very good 3 = good 4 = fair 5 = poor",
+    "DiffWalk": "Do you have serious difficulty walking or climbing stairs? 0 = no 1 = yes",
+    "HighChol": "Cholesterol: 0 = no high cholesterol 1 = high cholesterol",
+    "Age": "13-level age category (_AGEG5YR see codebook) 1 = 18-24 9 = 60-64 13 = 80 or older",
+    "HeartDiseaseorAttack": "coronary heart disease (CHD) or myocardial infarction (MI) 0 = no 1 = yes",
+    "PhysHlth": "Now thinking about your physical health, which includes physical illness and injury, for how many days during the past 30",
+    "Stroke": "(Ever told) you had a stroke. 0 = no 1 = yes",
+    "MentHlth": "Now thinking about your mental health, which includes stress, depression, and problems with emotions, for how many days during the past 30"
+  },
+  "inputs": {
+    "input_sequence": [
+      "HighBP",
+      "BMI",
+      "GenHlth",
+      "DiffWalk",
+      "HighChol",
+      "Age",
+      "HeartDiseaseorAttack",
+      "PhysHlth",
+      "Stroke",
+      "MentHlth"
+    ],
+    "example": {
+      "non_diabet": [0, 19.2, 3, 0, 0, 2, 0, 1, 0, 1],
+      "pre_diabet": [1, 30.0, 3, 0, 0, 8, 0, 10, 0, 20],
+      "diabet": [1, 43.0, 4, 1, 1, 10, 1, 15, 1, 15]
+    }
+  },
+  "outputs": {
+    "desc": "diabetes probabilities value from 0 - 1 (float)",
+    "example": 0.7865
+  }
+}
