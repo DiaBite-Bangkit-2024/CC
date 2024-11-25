@@ -10,7 +10,8 @@ const authenticateToken = (req, res, next) => {
     try {
         // Verifikasi token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // Menyimpan data pengguna yang terdekode di request
+        req.user = decoded; 
+        console.log(decoded);
         next(); // Lanjutkan ke middleware berikutnya
     } catch (err) {
         return res.status(403).json({ message: "Invalid Token" });

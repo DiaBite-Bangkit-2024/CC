@@ -1,4 +1,4 @@
-require("dotenv").config();
+require('dotenv').config();
 const express = require("express");
 const authRoutes = require("./routes/auth");
 const foodRcmd = require("./routes/food-rcmd");

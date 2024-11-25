@@ -71,10 +71,10 @@ router.post("/verify-otp", (req, res) => {
     // Check if OTP matches in the database
     const query = "SELECT * FROM register WHERE email = ?";
     db.query(query, [email], (err, results) => {
-        if (err) return res.status(500).json({ message: "Database error", error: true});
+        if (err) return res.status(500).json({ message: "Database error", error: true });
 
         if (results.length === 0) {
-            return res.status(400).json({ message: "User not found", error: true});
+            return res.status(400).json({ message: "User not found", error: true });
         }
 
         const user = results[0];
@@ -89,7 +89,13 @@ router.post("/verify-otp", (req, res) => {
                     return res.status(500).json({ message: "Error updating OTP status", error: true });
                 }
 
-                res.status(200).json({ message: "OTP verified successfully! Please provide user profile data." });
+                // Generate token after OTP is verified
+                const token = generateToken({ email: user.email });
+
+                res.status(200).json({
+                    message: "OTP verified successfully! Please provide user profile data.",
+                    token // Include the generated token in the response
+                });
             });
         } else {
             res.status(400).json({ message: "Invalid OTP", error: true });
@@ -98,7 +104,7 @@ router.post("/verify-otp", (req, res) => {
 });
 
 // Save User Profile (After OTP Verification)
-router.post("/user-profile", (req, res) => {
+router.post("/save-profile", (req, res) => {
     const { email, age, gender, weight, height, systolic, diastolic } = req.body;
 
     const query = "SELECT * FROM register WHERE email = ?";
@@ -226,7 +232,137 @@ router.post("/resend-otp", (req, res) => {
     });
 });
 
+// API untuk mendapatkan profil pengguna
+router.get("/user-profile", authenticateToken, (req, res) => {
+    const { email } = req.user;
+
+    const query = `
+        SELECT 
+            r.name, r.email, 
+            u.age, u.gender, u.height, u.weight, 
+            u.systolic, u.diastolic
+        FROM 
+            register r
+        LEFT JOIN 
+            user u 
+        ON 
+            u.register_id = r.id
+        WHERE 
+            r.email = ?;
+    `;
+
+    db.query(query, [email], (err, results) => {
+        if (err) {
+            console.error("Database error:", err.message);
+            return res.status(500).json({ message: "Database error", error: true });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "User not found", error: true });
+        }
+
+        const profile = results[0];
+        res.status(200).json({
+            message: "User profile fetched successfully",
+            profile,
+        });
+    });
+});
+
+
+// API untuk mengedit profil pengguna
+router.patch("/edit-profile", authenticateToken, async (req, res) => {
+    const { email: currentEmail } = req.user; // Email dari token yang sudah diverifikasi
+    const {
+        name,
+        newEmail,
+        password,
+        age,
+        gender,
+        height,
+        weight,
+        systolic,
+        diastolic,
+    } = req.body; // Data yang akan diupdate
+
+    // Validasi input
+    if (!name && !newEmail && !password && !age && !gender && !height && !weight && !systolic && !diastolic) {
+        return res.status(400).json({ message: "No data provided to update", error: true });
+    }
+
+    try {
+        // Hash password jika ada
+        let hashedPassword = null;
+        if (password) {
+            hashedPassword = await hashPassword(password);
+        }
+
+    // Query untuk mengupdate tabel `register`
+    const queryUpdateRegister = `
+        UPDATE register 
+        SET
+            name = COALESCE(?, name),
+            email = COALESCE(?, email),
+            password = COALESCE(?, password)
+        WHERE email = ?;
+    `;
+
+    // Query untuk mengupdate tabel `user`
+    const queryUpdateUser = `
+        UPDATE user 
+        SET 
+            age = COALESCE(?, age),
+            gender = COALESCE(?, gender),
+            height = COALESCE(?, height),
+            weight = COALESCE(?, weight),
+            systolic = COALESCE(?, systolic),
+            diastolic = COALESCE(?, diastolic)
+        WHERE register_id = (
+            SELECT id FROM register WHERE email = ?
+        );
+    `;
+
+    // Jalankan query untuk update data di tabel `register`
+    db.query(queryUpdateRegister, [name, newEmail, hashedPassword, currentEmail], (err, resultRegister) => {
+        if (err) {
+            console.error("Error updating register table:", err.message);
+            return res.status(500).json({ message: "Database error", error: true });
+        }
+
+        // Jalankan query untuk update data di tabel `user`
+        db.query(
+            queryUpdateUser,
+            [age, gender, height, weight, systolic, diastolic, newEmail],
+            (err, resultUser) => {
+                if (err) {
+                    console.error("Error updating user table:", err.message);
+                    return res.status(500).json({ message: "Database error", error: true });
+                }
+
+                let newToken = null;
+                    if (newEmail || password) {
+                        newToken = generateToken({email: newEmail });
+                    }
+
+                res.status(200).json({
+                    message: "Profile updated successfully",
+                    affectedRows: {
+                        register: resultRegister.affectedRows,
+                        user: resultUser.affectedRows,
+                    },
+                    token: newToken
+                });
+            }
+        );
+    });
+} catch (error) {
+    console.error("Error updating profile:", error.message);
+    res.status(500).json({ message: "Internal server error", error: true });
+}
+});
 
 
 
 module.exports = router;
+
+
