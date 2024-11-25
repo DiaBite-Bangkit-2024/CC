@@ -21,8 +21,14 @@ const sendOTP = (email, otp) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: "Your OTP Code",
-    text: `Your OTP code is: ${otp}`,
+    subject: "[DiaBite Account] Your OTP Code",
+    html: `
+        <p>Hello,</p>
+        <p>Your OTP code is: <b>${otp}</b></p>
+        <p>Alternatively, you can verify your account by clicking the link below:</p>
+        <a href="${verificationUrl}">Verify My Account</a>
+        <p>If you did not request this, please ignore this email.</p>
+  `,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -266,10 +272,18 @@ router.post("/resend-otp", (req, res) => {
       }
 
       // Kirim ulang OTP ke email
-      sendOTP(email, otp);
-      res
-        .status(200)
-        .json({ message: "OTP resent successfully. Check your email." });
+      const verificationUrl = `http://${process.env.IP}:${
+        process.env.PORT
+      }/auth/verify-otp?email=${encodeURIComponent(
+        email
+      )}&otp=${encodeURIComponent(otp)}`;
+
+      sendOTP(email, otp, verificationUrl);
+
+      res.status(200).json({
+        message: "OTP resent successfully. Check your email.",
+        verificationUrl,
+      });
     });
   });
 });
