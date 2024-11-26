@@ -70,7 +70,7 @@ router.post("/register", async (req, res) => {
         process.env.EXPRESS_URL
       }/auth/verify-otp?email=${encodeURIComponent(
         email
-      )}&otp=${encodeURIComponent(otp)}`;
+      )}&otp=${encodeURIComponent(otp)}&url=true`;
 
       sendOTP(email, otp, verificationUrl);
 
@@ -88,17 +88,23 @@ router.post("/register", async (req, res) => {
 router.all("/verify-otp", (req, res) => {
   const email = req.body.email || req.query.email || req.header.email;
   const otp = req.body.otp || req.query.otp || req.header.otp;
+  const is_url = req.body.url || req.query.url || req.header.url;
 
   // Check if OTP matches in the database
   const query = "SELECT * FROM register WHERE email = ?";
   db.query(query, [email], (err, results) => {
-    if (err)
-      return res
-        .status(500)
-        .json({ message: "Database error: " + err, error: true });
+    if (err) {
+      if (!is_url)
+        return res
+          .status(500)
+          .json({ message: "Database error: " + err, error: true });
+      return res.status(500).send("Database error: " + err);
+    }
 
     if (results.length === 0) {
-      return res.status(400).json({ message: "User not found", error: true });
+      if (!is_url)
+        return res.status(400).json({ message: "User not found", error: true });
+      return res.status(400).send("User not found");
     }
 
     const user = results[0];
@@ -110,23 +116,29 @@ router.all("/verify-otp", (req, res) => {
       db.query(updateQuery, [1, email], (updateErr, updateResult) => {
         if (updateErr) {
           console.error("Error updating OTP status:", updateErr);
-          return res.status(500).json({
-            message: "Error updating OTP status:" + updateErr,
-            error: true,
-          });
+          if (!is_url)
+            return res.status(500).json({
+              message: "Error updating OTP status:" + updateErr,
+              error: true,
+            });
+          return res.status(500).send("Error updating OTP status:", updateErr);
         }
 
         // Generate token after OTP is verified
         const token = generateToken({ email: user.email });
 
-        res.status(200).json({
-          message:
-            "OTP verified successfully! Please provide user profile data.",
-          token, // Include the generated token in the response
-        });
+        if (!is_url)
+          return res.status(200).json({
+            message:
+              "OTP verified successfully! Please provide user profile data.",
+            token, // Include the generated token in the response
+          });
+        return res.status(200).send("OTP verified successfully!");
       });
     } else {
-      res.status(400).json({ message: "Invalid OTP", error: true });
+      if (!is_url)
+        return res.status(400).json({ message: "Invalid OTP", error: true });
+      res.status(400).send("Invalid OTP");
     }
   });
 });
@@ -275,7 +287,7 @@ router.post("/resend-otp", (req, res) => {
         process.env.EXPRESS_URL
       }/auth/verify-otp?email=${encodeURIComponent(
         email
-      )}&otp=${encodeURIComponent(otp)}`;
+      )}&otp=${encodeURIComponent(otp)}&url=true`;
 
       sendOTP(email, otp, verificationUrl);
 
