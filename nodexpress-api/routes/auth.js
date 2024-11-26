@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Fungsi untuk mengirim OTP
-const sendOTP = (email, otp) => {
+const sendOTP = (email, otp, verificationUrl) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
