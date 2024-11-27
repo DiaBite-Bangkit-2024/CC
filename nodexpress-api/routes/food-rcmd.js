@@ -5,8 +5,8 @@ const router = express.Router();
 loadCluster()
   .then((clusterData) => {
     console.log("Food Recommendation Ready!");
-    router.get("/", async (req, res) => {
-      const tags = req.body.tags || req.query.tags || req.header.tags || ["-"];
+    router.all("/", async (req, res) => {
+      const tags = req.body.tags || JSON.parse(req.query.tags || null) || req.header.tags || ["-"];
 
       let response = {
         message: "Success get food recommendation!",
