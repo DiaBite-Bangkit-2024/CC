@@ -40,13 +40,13 @@ const doPredict = async (req, res, next) => {
           finalResult.data["message"] = "Probability updated successfully!";
           finalResult.data["affectedRows"] = resultUser.affectedRows;
         }
+        return res.status(finalResult.status).json(finalResult.data);
       }
     );
   } catch (error) {
     finalResult = error.response;
+    return res.status(finalResult.status).json(finalResult.data);
   }
-
-  return res.status(finalResult.status).json(finalResult.data);
 };
 
 router.route("/").get(getInfoPredict).post(authenticateToken, doPredict);
