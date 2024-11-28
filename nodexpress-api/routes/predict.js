@@ -30,14 +30,14 @@ const doPredict = async (req, res, next) => {
 
     db.query(
       queryDataUser,
-      [finalResult["prediction"], email],
+      [finalResult.data["prediction"], email],
       (err, resultUser) => {
         if (err) {
-          finalResult["error"] = true;
-          finalResult["messasge"] = "[Database Error]" + err;
+          finalResult.data["error"] = true;
+          finalResult.data["message"] = "[Database Error]" + err;
         } else {
-          finalResult["message"] = "Probability updated successfully!";
-          finalResult["affectedRows"] = resultUser.affectedRows;
+          finalResult.data["message"] = "Probability updated successfully!";
+          finalResult.data["affectedRows"] = resultUser.affectedRows;
         }
       }
     );
