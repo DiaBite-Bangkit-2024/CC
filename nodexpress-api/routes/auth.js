@@ -445,7 +445,101 @@ router.patch("/edit-profile", authenticateToken, async (req, res) => {
     );
   } catch (error) {
     console.error("Error updating profile:", error.message);
-    res.status(500).json({ message: "Internal server error", error: true });
+    res
+      .status(500)
+      .json({ message: "Internal server error : " + error, error: true });
+  }
+});
+
+router.post("/forget-pw", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      message: "Email tidak ditemukan",
+      error: true,
+    });
+  }
+
+  try {
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+    let QUERY = `
+    UPDATE register
+    SET
+      otp = ?
+    WHERE email = ?
+    `;
+
+    db.query(QUERY, [otp, email], (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Database error: " + err, error: true });
+      }
+
+      if (result.affectedRows == 0) {
+        return res
+          .status(404)
+          .json({ message: "User not found!", error: true });
+      }
+
+      res.status(200).json({
+        message: "OTP sent to your email!",
+        error: false,
+      });
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error.message);
+    res
+      .status(500)
+      .json({ message: "Internal server error : " + error, error: true });
+  }
+});
+
+router.post("/reset-pw", async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  if (!email || !otp || !newPassword) {
+    return res.status(400).json({
+      message: "Email, OTP, dan newPassword harus disertakan!",
+      error: true,
+    });
+  }
+
+  try {
+    const hashedPassword = await hashPassword(password);
+
+    let QUERY = `
+    UPDATE register
+    SET
+      password = ?
+    WHERE email = ? AND otp = ?
+    `;
+
+    db.query(QUERY, [hashedPassword, email, otp], (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Database error: " + err, error: true });
+      }
+
+      if (result.affectedRows == 0) {
+        return res
+          .status(404)
+          .json({ message: "Email or OTP false!", error: true });
+      }
+
+      res.status(200).json({
+        message: "Password reset successfully!",
+        error: false,
+      });
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error.message);
+    res
+      .status(500)
+      .json({ message: "Internal server error : " + error, error: true });
   }
 });
 
