@@ -25,10 +25,14 @@ const sendOTP = (email, otp, verificationUrl) => {
     html: `
         <p>Hello,</p>
         <p>Your OTP code is: <b>${otp}</b></p>
-        <p>Alternatively, you can verify your account by clicking the link below:</p>
+        ${
+          verificationUrl
+            ? `<p>Alternatively, you can verify your account by clicking the link below:</p>
         <a href="${verificationUrl}">Verify My Account</a>
-        <p>If you did not request this, please ignore this email.</p>
-  `,
+        <p>If you did not request this, please ignore this email.</p>`
+            : ""
+        }
+  `.trim(),
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -484,6 +488,8 @@ router.post("/forget-pw", async (req, res) => {
           .json({ message: "User not found!", error: true });
       }
 
+      sendOTP(email, otp, false);
+
       res.status(200).json({
         message: "OTP sent to your email!",
         error: false,
@@ -508,7 +514,7 @@ router.post("/reset-pw", async (req, res) => {
   }
 
   try {
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashPassword(newPassword);
 
     let QUERY = `
     UPDATE register
