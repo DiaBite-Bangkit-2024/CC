@@ -116,7 +116,8 @@ router.all("/verify-otp", (req, res) => {
     // Verify OTP
     if (user.otp === otp) {
       // Update OTP status to verified (use `is_verified` column)
-      const updateQuery = "UPDATE register SET is_verified = ? WHERE email = ?";
+      const updateQuery =
+        "UPDATE register SET is_verified = ?, otp = NULL WHERE email = ?";
       db.query(updateQuery, [1, email], (updateErr, updateResult) => {
         if (updateErr) {
           console.error("Error updating OTP status:", updateErr);
@@ -519,7 +520,8 @@ router.post("/reset-pw", async (req, res) => {
     let QUERY = `
     UPDATE register
     SET
-      password = ?
+      password = ?,
+      otp = NULL
     WHERE email = ? AND otp = ?
     `;
 
