@@ -81,11 +81,27 @@
       #back-to-top:hover {
         background-color: #666;
       }
+
+      footer {
+        padding: 0.5rem 0;
+      }
     </style>
   </head>
   <body>
     <div id="app"><%- content %></div>
     <button id="back-to-top" title="Back to Top">↑</button>
+
+    <hr />
+    <footer>
+      <center>
+        Made by
+        <a href="https://github.com/DiaBite-Bangkit-2024"
+          >DiaBite-Bangkit-2024</a
+        >
+        with ❤️
+      </center>
+    </footer>
+
     <script>
       document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
         anchor.addEventListener("click", function (e) {

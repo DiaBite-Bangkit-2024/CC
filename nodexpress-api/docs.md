@@ -38,15 +38,21 @@ Registrasi pengguna baru dan mengirimkan OTP ke email untuk verifikasi.
 
 - **201 Created**
   ```json
-  { "message": "User registered successfully. OTP sent to email." }
+  {
+    "message": "User registered successfully. OTP sent to email."
+  }
   ```
 - **400 Bad Request**
   ```json
-  { "message": "User already exists." }
+  {
+    "message": "User already exists."
+  }
   ```
 - **500 Internal Server Error**
   ```json
-  { "message": "Database error." }
+  {
+    "message": "Database error."
+  }
   ```
 
 ---
@@ -72,15 +78,22 @@ Verifikasi OTP untuk akun pengguna.
 
 - **200 OK**
   ```json
-  { "message": "OTP verified successfully!", "token": "jwt-token" }
+  {
+    "message": "OTP verified successfully!",
+    "token": "jwt-token"
+  }
   ```
 - **400 Bad Request**
   ```json
-  { "message": "Invalid OTP." }
+  {
+    "message": "Invalid OTP."
+  }
   ```
 - **404 Not Found**
   ```json
-  { "message": "User not found." }
+  {
+    "message": "User not found."
+  }
   ```
 
 ---
@@ -117,11 +130,15 @@ Login pengguna untuk mendapatkan token JWT.
   ```
 - **400 Bad Request**
   ```json
-  { "message": "Invalid email or password." }
+  {
+    "message": "Invalid email or password."
+  }
   ```
 - **403 Forbidden**
   ```json
-  { "message": "Your account not verified yet." }
+  {
+    "message": "Your account not verified yet."
+  }
   ```
 
 ---
@@ -146,11 +163,15 @@ Mengirim ulang OTP ke email pengguna.
 
 - **200 OK**
   ```json
-  { "message": "OTP resent successfully. Check your email." }
+  {
+    "message": "OTP resent successfully. Check your email."
+  }
   ```
 - **404 Not Found**
   ```json
-  { "message": "User not found." }
+  {
+    "message": "User not found."
+  }
   ```
 
 ---
@@ -181,11 +202,15 @@ Menyimpan informasi profil pengguna setelah verifikasi OTP.
 
 - **200 OK**
   ```json
-  { "message": "User profile updated successfully." }
+  {
+    "message": "User profile updated successfully."
+  }
   ```
 - **400 Bad Request**
   ```json
-  { "message": "OTP not verified. Please verify OTP first." }
+  {
+    "message": "OTP not verified. Please verify OTP first."
+  }
   ```
 
 ---
@@ -221,7 +246,9 @@ Mengambil informasi profil pengguna yang sudah login.
   ```
 - **404 Not Found**
   ```json
-  { "message": "User not found." }
+  {
+    "message": "User not found."
+  }
   ```
 
 ---
@@ -253,11 +280,15 @@ Mengubah informasi profil pengguna.
 
 - **200 OK**
   ```json
-  { "message": "Profile updated successfully." }
+  {
+    "message": "Profile updated successfully."
+  }
   ```
 - **400 Bad Request**
   ```json
-  { "message": "No data provided to update." }
+  {
+    "message": "No data provided to update."
+  }
   ```
 
 ---
@@ -305,7 +336,9 @@ tags=["array", "of", "tag"]
   ```
 - **500 Server Error**
   ```json
-  { "message": "Error processing request : ERROR_MSG" }
+  {
+    "message": "Error processing request : ERROR_MSG"
+  }
   ```
 
 ---
@@ -343,7 +376,8 @@ Mendapatkan prediksi kemungkinan diabetes.
 }
 ```
 
-**Note:** ["HighBP", "BMI", "GenHlth", "DiffWalk", "HighChol", "Age", "HeartDiseaseorAttack", "PhysHlth", "Stroke", "MentHlth"]
+**Input Sequence:**
+`["HighBP", "BMI", "GenHlth", "DiffWalk", "HighChol", "Age", "HeartDiseaseorAttack", "PhysHlth", "Stroke", "MentHlth"]`
 
 **Responses:**
 
@@ -356,9 +390,3 @@ Mendapatkan prediksi kemungkinan diabetes.
     "affectedRows": 1
   }
   ```
-
----
-
-<center>
-Made by <a href="https://github.com/DiaBite-Bangkit-2024">DiaBite-Bangkit-2024</a> with ❤️
-</center>
