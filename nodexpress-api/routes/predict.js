@@ -36,6 +36,7 @@ const doPredict = async (req, res, next) => {
         if (err) {
           finalResult.data["error"] = true;
           finalResult.data["message"] = "[Database Error]" + err;
+          finalResult.status = 500;
         } else {
           finalResult.data["message"] = "Probability updated successfully!";
           finalResult.data["affectedRows"] = resultUser.affectedRows;

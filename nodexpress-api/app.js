@@ -3,12 +3,16 @@ const express = require("express");
 const authRoutes = require("./routes/auth");
 const foodRcmd = require("./routes/food-rcmd");
 const predict = require("./routes/predict");
+const docs = require("./routes/docs");
+const path = require("path");
 
 const app = express();
 const PORT = process.env.EXPRESS_PORT || 3000;
 
 // Middleware
-app.use(express.static("./public"));
+app.use(express.static(path.join(__dirname, "public")));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 app.use(express.json());
 app.use(
   express.urlencoded({
@@ -26,6 +30,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/food", foodRcmd);
 app.use("/predict", predict);
+app.use("/docs", docs);
 
 // handle 404 not found
 app.use((req, res, next) => {
