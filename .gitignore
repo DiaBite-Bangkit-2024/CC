@@ -1,3 +1,4 @@
 nodexpress-api/node_modules/
 nodexpress-api/.env
+.env
 .prettierrc

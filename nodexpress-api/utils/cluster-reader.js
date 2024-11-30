@@ -1,4 +1,5 @@
 let fs = require("fs");
+let path = require("path");
 let { parse } = require("csv-parse");
 
 let clusterData = [[]];
@@ -10,7 +11,9 @@ async function loadCluster() {
     let isFirstRow = true;
     const promise = new Promise((resolve, reject) => {
       const data = [];
-      fs.createReadStream(`./clustered_food/cluster_${i}.csv`)
+      fs.createReadStream(
+        path.join(__dirname, `../clustered_food/cluster_${i}.csv`)
+      )
         .pipe(parse({ delimiter: "," }))
         .on("data", (csvrow) => {
           if (!isFirstRow) {
