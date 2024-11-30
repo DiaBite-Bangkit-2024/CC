@@ -339,9 +339,11 @@ Mendapatkan prediksi kemungkinan diabetes.
 
 ```json
 {
-  "input": ["array", "of", "input"]
+  "input": [1, 43, 4, 1, 1, 10, 1, 15, 1, 15]
 }
 ```
+
+**Note:** ["HighBP", "BMI", "GenHlth", "DiffWalk", "HighChol", "Age", "HeartDiseaseorAttack", "PhysHlth", "Stroke", "MentHlth"]
 
 **Responses:**
 
@@ -354,3 +356,9 @@ Mendapatkan prediksi kemungkinan diabetes.
     "affectedRows": 1
   }
   ```
+
+---
+
+<center>
+Made by <a href="https://github.com/DiaBite-Bangkit-2024">DiaBite-Bangkit-2024</a> with ❤️
+</center>
