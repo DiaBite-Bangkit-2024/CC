@@ -173,33 +173,36 @@ router.post("/save-profile", (req, res) => {
       });
     }
 
-    // Save user profile
-    const profileQuery = `
-            INSERT INTO user (register_id, age, gender, weight, height, systolic, diastolic)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-            age = VALUES(age),
-            gender = VALUES(gender),
-            weight = VALUES(weight),
-            height = VALUES(height),
-            systolic = VALUES(systolic),
-            diastolic = VALUES(diastolic)
-        `;
+    // Update user profile
+    const updateQuery = `
+      UPDATE user
+      SET age = ?, gender = ?, weight = ?, height = ?, systolic = ?, diastolic = ?
+      WHERE register_id = ?
+    `;
 
     db.query(
-      profileQuery,
-      [user.id, age, gender, weight, height, systolic, diastolic],
+      updateQuery,
+      [age, gender, weight, height, systolic, diastolic, user.id],
       (err, result) => {
         if (err)
           return res
             .status(500)
             .json({ message: "Database error: " + err, error: true });
 
-        res.status(201).json({ message: "User profile saved successfully" });
+        // Check if any rows were updated
+        if (result.affectedRows === 0) {
+          return res.status(404).json({
+            message: "Profile not found for update. Please check the user.",
+            error: true,
+          });
+        }
+
+        res.status(200).json({ message: "User profile updated successfully" });
       }
     );
   });
 });
+
 
 // Login
 router.post("/login", (req, res) => {
@@ -346,49 +349,21 @@ router.get("/user-profile", authenticateToken, (req, res) => {
 // API untuk mengedit profil pengguna
 router.patch("/edit-profile", authenticateToken, async (req, res) => {
   const { email: currentEmail } = req.user; // Email dari token yang sudah diverifikasi
-  const {
-    name,
-    newEmail,
-    password,
-    age,
-    gender,
-    height,
-    weight,
-    systolic,
-    diastolic,
-  } = req.body; // Data yang akan diupdate
+  const { name, age, gender, height, weight, systolic, diastolic } = req.body; // Data yang akan diupdate
 
   // Validasi input
-  if (
-    !name &&
-    !newEmail &&
-    !password &&
-    !age &&
-    !gender &&
-    !height &&
-    !weight &&
-    !systolic &&
-    !diastolic
-  ) {
+  if (!name && !age && !gender && !height && !weight && !systolic && !diastolic) {
     return res
       .status(400)
       .json({ message: "No data provided to update", error: true });
   }
 
   try {
-    // Hash password jika ada
-    let hashedPassword = null;
-    if (password) {
-      hashedPassword = await hashPassword(password);
-    }
-
     // Query untuk mengupdate tabel `register`
     const queryUpdateRegister = `
         UPDATE register 
         SET
-            name = COALESCE(?, name),
-            email = COALESCE(?, email),
-            password = COALESCE(?, password)
+            name = COALESCE(?, name)
         WHERE email = ?;
     `;
 
@@ -410,7 +385,7 @@ router.patch("/edit-profile", authenticateToken, async (req, res) => {
     // Jalankan query untuk update data di tabel `register`
     db.query(
       queryUpdateRegister,
-      [name, newEmail, hashedPassword, currentEmail],
+      [name, currentEmail],
       (err, resultRegister) => {
         if (err) {
           console.error("Error updating register table:", err.message);
@@ -422,7 +397,7 @@ router.patch("/edit-profile", authenticateToken, async (req, res) => {
         // Jalankan query untuk update data di tabel `user`
         db.query(
           queryUpdateUser,
-          [age, gender, height, weight, systolic, diastolic, newEmail],
+          [age, gender, height, weight, systolic, diastolic, currentEmail],
           (err, resultUser) => {
             if (err) {
               console.error("Error updating user table:", err.message);
@@ -430,19 +405,12 @@ router.patch("/edit-profile", authenticateToken, async (req, res) => {
                 .status(500)
                 .json({ message: "Database error: " + err, error: true });
             }
-
-            let newToken = null;
-            if (newEmail || password) {
-              newToken = generateToken({ email: newEmail });
-            }
-
             res.status(200).json({
               message: "Profile updated successfully",
               affectedRows: {
                 register: resultRegister.affectedRows,
                 user: resultUser.affectedRows,
               },
-              token: newToken,
             });
           }
         );
@@ -456,6 +424,7 @@ router.patch("/edit-profile", authenticateToken, async (req, res) => {
   }
 });
 
+//Forgot password
 router.post("/forget-pw", async (req, res) => {
   const { email } = req.body;
 
@@ -504,6 +473,7 @@ router.post("/forget-pw", async (req, res) => {
   }
 });
 
+//Reset Password
 router.post("/reset-pw", async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
