@@ -1,4 +1,5 @@
 nodexpress-api/node_modules/
 nodexpress-api/.env
+nodexpress-api/credentials.json
 .env
 .prettierrc

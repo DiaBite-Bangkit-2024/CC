@@ -5,6 +5,19 @@ const nodemailer = require("nodemailer");
 const { authenticateToken } = require("../utils/auth");
 const db = require("../db");
 const router = express.Router();
+const multer = require('multer');
+const { Storage } = require('@google-cloud/storage');
+const path = require('path');
+
+//Bucket Setting
+
+const storage = new Storage({ keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS });
+const bucketName = 'diabite';
+
+// Konfigurasi multer untuk menerima file gambar
+const multerStorage = multer.memoryStorage();
+const upload = multer({ storage: multerStorage });
+
 
 // Konfigurasi nodemailer untuk mengirim email
 const transporter = nodemailer.createTransport({
@@ -314,7 +327,7 @@ router.get("/user-profile", authenticateToken, (req, res) => {
         SELECT 
             r.name, r.email, 
             u.age, u.gender, u.height, u.weight, 
-            u.systolic, u.diastolic
+            u.systolic, u.diastolic, u.avatar
         FROM 
             register r
         LEFT JOIN 
@@ -346,80 +359,111 @@ router.get("/user-profile", authenticateToken, (req, res) => {
 });
 
 // API untuk mengedit profil pengguna
-router.patch("/edit-profile", authenticateToken, async (req, res) => {
+router.patch("/edit-profile", authenticateToken, upload.single('avatar'), async (req, res) => {
   const { email: currentEmail } = req.user; // Email dari token yang sudah diverifikasi
   const { name, age, gender, height, weight, systolic, diastolic } = req.body; // Data yang akan diupdate
 
+  let avatarUrl = null;
+
   // Validasi input
-  if (!name && !age && !gender && !height && !weight && !systolic && !diastolic) {
+  if (!name && !age && !gender && !height && !weight && !systolic && !diastolic && !req.file) {
     return res
       .status(400)
       .json({ message: "No data provided to update", error: true });
   }
 
   try {
-    // Query untuk mengupdate tabel `register`
-    const queryUpdateRegister = `
-        UPDATE register 
+    const updateDatabase = () => {
+      // Query untuk mengupdate tabel `register`
+      const queryUpdateRegister = `
+        UPDATE register
         SET
-            name = COALESCE(?, name)
+          name = COALESCE(?, name)
         WHERE email = ?;
-    `;
+      `;
 
-    // Query untuk mengupdate tabel `user`
-    const queryUpdateUser = `
-        UPDATE user 
-        SET 
-            age = COALESCE(?, age),
-            gender = COALESCE(?, gender),
-            height = COALESCE(?, height),
-            weight = COALESCE(?, weight),
-            systolic = COALESCE(?, systolic),
-            diastolic = COALESCE(?, diastolic)
+      // Query untuk mengupdate tabel `user`
+      const queryUpdateUser = `
+        UPDATE user
+        SET
+          age = COALESCE(?, age),
+          gender = COALESCE(?, gender),
+          height = COALESCE(?, height),
+          weight = COALESCE(?, weight),
+          systolic = COALESCE(?, systolic),
+          diastolic = COALESCE(?, diastolic),
+          avatar = COALESCE(?, avatar)
         WHERE register_id = (
-            SELECT id FROM register WHERE email = ?
+          SELECT id FROM register WHERE email = ?
         );
-    `;
+      `;
 
-    // Jalankan query untuk update data di tabel `register`
-    db.query(
-      queryUpdateRegister,
-      [name, currentEmail],
-      (err, resultRegister) => {
-        if (err) {
-          console.error("Error updating register table:", err.message);
-          return res
-            .status(500)
-            .json({ message: "Database error: " + err, error: true });
-        }
-
-        // Jalankan query untuk update data di tabel `user`
-        db.query(
-          queryUpdateUser,
-          [age, gender, height, weight, systolic, diastolic, currentEmail],
-          (err, resultUser) => {
-            if (err) {
-              console.error("Error updating user table:", err.message);
-              return res
-                .status(500)
-                .json({ message: "Database error: " + err, error: true });
-            }
-            res.status(200).json({
-              message: "Profile updated successfully",
-              affectedRows: {
-                register: resultRegister.affectedRows,
-                user: resultUser.affectedRows,
-              },
-            });
+      // Jalankan query untuk update data di tabel `register`
+      db.query(
+        queryUpdateRegister,
+        [name, currentEmail],
+        (err, resultRegister) => {
+          if (err) {
+            console.error("Error updating register table:", err.message);
+            return res.status(500).json({ message: "Database error: " + err, error: true });
           }
-        );
-      }
-    );
+
+          // Jalankan query untuk update data di tabel `user`
+          db.query(
+            queryUpdateUser,
+            [age, gender, height, weight, systolic, diastolic, avatarUrl, currentEmail],
+            (err, resultUser) => {
+              if (err) {
+                console.error("Error updating user table:", err.message);
+                return res.status(500).json({ message: "Database error: " + err, error: true });
+              }
+
+              res.status(200).json({
+                message: "Profile updated successfully",
+                affectedRows: {
+                  register: resultRegister.affectedRows,
+                  user: resultUser.affectedRows,
+                },
+                avatarUrl
+              });
+            }
+          );
+        }
+      );
+    }
+
+
+    // Upload foto ke Google Cloud Storage jika ada file yang diunggah
+    if (req.file) {
+      const fileName = Date.now() + req.file.originalname;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(fileName);
+
+      const blobStream = blob.createWriteStream({
+        resumable: false,
+        contentType: req.file.mimetype,
+      });
+
+      blobStream.on('error', (err) => {
+        console.error("Error uploading file:", err.message);
+        return res.status(500).json({ message: "Error uploading file", error: true });
+      });
+
+      blobStream.on('finish', () => {
+        avatarUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
+        updateDatabase();
+      });
+
+      blobStream.end(req.file.buffer);
+    } else {
+      updateDatabase();
+    }
+
   } catch (error) {
     console.error("Error updating profile:", error.message);
     res
       .status(500)
-      .json({ message: "Internal server error : " + error, error: true });
+      .json({ message: "Internal server error: " + error, error: true });
   }
 });
 
