@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const { hashPassword, comparePassword } = require("../utils/hash");
 const { generateToken } = require("../utils/jwt");
