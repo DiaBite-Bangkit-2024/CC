@@ -2,9 +2,10 @@ from flask import Flask, request, jsonify
 import tensorflow as tf
 import numpy as np
 import json
+import os
 
 app = Flask(__name__)
-interpreter = tf.lite.Interpreter(model_path="model.tflite")
+interpreter = tf.lite.Interpreter(model_path=os.path.join(__file__, "model.tflite"))
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
