@@ -1,13 +1,13 @@
+const path = require("path");
+require("dotenv").config({
+  path: path.join(__dirname, ".env")
+});
+
 const express = require("express");
 const authRoutes = require("./routes/auth");
 const foodRcmd = require("./routes/food-rcmd");
 const predict = require("./routes/predict");
 const docs = require("./routes/docs");
-const path = require("path");
-
-require("dotenv").config({
-  path: path.join(__dirname, ".env")
-});
 
 const app = express();
 const PORT = process.env.EXPRESS_PORT || 3000;
