@@ -38,7 +38,11 @@ async function loadCluster() {
   }
 
   await Promise.all(promises);
-  return Promise.resolve({ clusterData, columnNames });
+
+  const tags = JSON.parse(
+    fs.readFileSync(path.join(__dirname, `../clustered_food/tags.json`)) || null
+  );
+  return Promise.resolve({ clusterData, columnNames, tags });
 }
 
 module.exports = {

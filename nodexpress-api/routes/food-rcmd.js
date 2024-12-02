@@ -3,7 +3,7 @@ const { loadCluster } = require("../utils/cluster-reader");
 const router = express.Router();
 
 loadCluster()
-  .then(({ clusterData, columnNames }) => {
+  .then(({ clusterData, columnNames, tags }) => {
     console.log("Food Recommendation Ready!");
     router.all("/", async (req, res) => {
       const tags = req.body.tags ||
@@ -46,6 +46,10 @@ loadCluster()
         response.error = true;
         res.status(500).json(response);
       }
+    });
+
+    router.all("/tags", (req, res) => {
+      return res.status(200).json({ tags, message: "success", error: false });
     });
   })
   .catch((err) => {
