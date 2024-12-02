@@ -44,7 +44,7 @@ def predict():
 @app.route('/index', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'])
 def helloworld():
     try:
-        with open('info.json', 'r') as file:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'info.json'), 'r') as file:
             data = json.load(file)
         return jsonify({ "data": data, "error": False, "message": "Service is running.." })
     except FileNotFoundError:
