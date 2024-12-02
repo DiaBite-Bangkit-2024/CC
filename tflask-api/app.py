@@ -5,7 +5,7 @@ import json
 import os
 
 app = Flask(__name__)
-interpreter = tf.lite.Interpreter(model_path=os.path.join(os.getcwd(), "model.tflite"))
+interpreter = tf.lite.Interpreter(model_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "model.tflite"))
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
