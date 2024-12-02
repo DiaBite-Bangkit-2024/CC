@@ -3,6 +3,7 @@ let path = require("path");
 let { parse } = require("csv-parse");
 
 let clusterData = [[]];
+let columnNames = [];
 
 async function loadCluster() {
   const promises = [];
@@ -19,24 +20,25 @@ async function loadCluster() {
           if (!isFirstRow) {
             data.push(csvrow);
           } else {
-            isFirstRow = false; // Skip header row
+            columnNames = csvrow;
+
+            isFirstRow = false;
           }
         })
         .on("end", () => {
-          clusterData[i] = data; // Simpan data ke array utama
-          resolve(); // Resolusi promise saat selesai membaca file
+          clusterData[i] = data;
+          resolve();
         })
         .on("error", (err) => {
-          reject(err); // Tolak promise jika terjadi error
+          reject(err);
         });
     });
 
-    promises.push(promise); // Tambahkan promise ke array
+    promises.push(promise);
   }
 
-  // Tunggu semua promise selesai
   await Promise.all(promises);
-  return Promise.resolve(clusterData);
+  return Promise.resolve({ clusterData, columnNames });
 }
 
 module.exports = {

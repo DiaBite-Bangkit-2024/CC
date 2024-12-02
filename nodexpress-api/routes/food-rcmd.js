@@ -3,14 +3,17 @@ const { loadCluster } = require("../utils/cluster-reader");
 const router = express.Router();
 
 loadCluster()
-  .then((clusterData) => {
+  .then(({ clusterData, columnNames }) => {
     console.log("Food Recommendation Ready!");
     router.all("/", async (req, res) => {
-      const tags = req.body.tags || JSON.parse(req.query.tags || null) || req.header.tags || ["-"];
+      const tags = req.body.tags ||
+        JSON.parse(req.query.tags || null) ||
+        req.header.tags || ["-"];
 
       let response = {
         message: "Success get food recommendation!",
         error: false,
+        columnNames,
         results: {},
         resultCount: {},
       };
