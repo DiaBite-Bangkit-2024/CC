@@ -31,10 +31,8 @@ loadCluster()
                 results[`cluster_${i}`] = [];
               }
               rowData = {};
-              let j = 0;
               for (const r in row) {
-                rowData[columnNames[j]] = r;
-                j++;
+                rowData[columnNames[r]] = row[r];
               }
 
               results[`cluster_${i}`].push(rowData);
