@@ -3,3 +3,4 @@ nodexpress-api/.env
 nodexpress-api/credentials.json
 .env
 .prettierrc
+**/*/__pycache__
