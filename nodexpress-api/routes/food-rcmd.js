@@ -13,7 +13,6 @@ loadCluster()
       let response = {
         message: "Success get food recommendation!",
         error: false,
-        columnNames,
         results: {},
         resultCount: {},
       };
@@ -31,7 +30,14 @@ loadCluster()
               if (!results[`cluster_${i}`]) {
                 results[`cluster_${i}`] = [];
               }
-              results[`cluster_${i}`].push(row);
+              rowData = {};
+              let j = 0;
+              for (const r in row) {
+                rowData[columnNames[j]] = r;
+                j++;
+              }
+
+              results[`cluster_${i}`].push(rowData);
             }
           });
           response.resultCount[`cluster_${i}`] =
