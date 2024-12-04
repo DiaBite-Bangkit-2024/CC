@@ -8,6 +8,7 @@ const router = express.Router();
 const multer = require('multer');
 const { Storage } = require('@google-cloud/storage');
 const path = require('path');
+const { getRandomValues } = require("crypto");
 
 //Bucket Setting
 
@@ -435,7 +436,8 @@ router.patch("/edit-profile", authenticateToken, upload.single('avatar'), async 
 
     // Upload foto ke Google Cloud Storage jika ada file yang diunggah
     if (req.file) {
-      const fileName = Date.now() + req.file.originalname;
+      const randomString = Math.random().toString(36).substring(2, 12);
+      const fileName = Date.now() + "_" + randomString + path.extname(req.file.originalname);
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(fileName);
 
