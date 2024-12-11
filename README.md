@@ -13,11 +13,18 @@ This project aims to predict the likelihood of diabetes based on user input and 
 
 ## ☁️ Cloud Computing
 
+### REST API for TensorFlow Model using Flask
+
+Implemented a REST API to process input data for diabetes risk prediction.
+
 ### REST API using Node.js and deployed to Compute Engine
 
 Implemented a REST API to process user data for diabetes risk prediction and food recommendations. The backend integrates with Machine Learning models stored in Google Cloud Storage for real-time predictions and uses authentication endpoints with JWT for secure user access. The architecture is built on Google Cloud Platform, leveraging Compute Engine for backend deployment, Cloud SQL for database management, and Cloud Storage for handling trained ML models and user-uploaded assets.
 
 > Documentation: [Postman Documenter](https://documenter.getpostman.com/view/39871659/2sAYBYgqbw)
+
+![Screenshot GCP](https://github.com/DiaBite-Bangkit-2024/.github/blob/main/assets/ssgcp.png?raw=true)
+![Screenshot Postman](https://github.com/DiaBite-Bangkit-2024/.github/blob/main/assets/sspm.png?raw=true)
 
 ## 📚 Libraries Used
 
@@ -38,3 +45,82 @@ This project utilizes several libraries:
 | `multer`                | Middleware designed for handling file uploads, such as images or documents, in an efficient manner.                     |
 | `mysql2`                | Provides robust tools for connecting and executing queries on MySQL databases.                                          |
 | `nodemailer`            | Simplifies sending emails directly from the application, such as delivering OTPs or account verification links.         |
+| `Flask`                 | Python-based web framework that provides tools and libraries for building web applications.                             |
+| `TensorFlow`            | Open-source software library that helps developers and data scientists create and deploy machine learning applications. |
+
+## 🏃‍➡️ How To Run
+
+### Flask App
+
+1. Clone this GitHub Repository
+
+   ```
+   git clone https://github.com/DiaBite-Bangkit-2024/CC.git
+   ```
+
+2. Change directory to Model 1 (`tflask-api`) folder
+
+   ```
+   cd tflask-api
+   ```
+
+3. Install dependencies
+
+   ```
+   # if using pip
+   pip install -r requirements.txt
+
+   # if using pip3
+   pip3 install -r requirements.txt
+
+   # if using conda
+   conda install --yes --file requirements.txt
+   ```
+
+4. Run the `app.py`
+
+   ```
+   # if using py
+   py app.py
+
+   # if using python3
+   python3 app.py
+
+   # if using pm2
+   pm2 start app.py --name flask-app
+   ```
+
+### Node.js App
+
+1. Clone this GitHub Repository
+
+   ```
+   git clone https://github.com/DiaBite-Bangkit-2024/CC.git
+   ```
+
+2. Change directory to Model 1 (`nodexpress-api`) folder
+
+   ```
+   cd nodexpress-api
+   ```
+
+3. Install dependencies
+
+   ```
+   npm i
+   ```
+
+4. Setting up your own `.env` file based on `.env-example` file
+
+5. Run the `app.js`
+
+   ```
+   # if using node
+   node app.js
+
+   # if using npm
+   npm run start
+
+   # if using pm2
+   pm2 start app.js --name nodejs-app
+   ```

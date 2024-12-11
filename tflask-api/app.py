@@ -3,7 +3,6 @@ import tensorflow as tf
 import numpy as np
 import json
 import os
-from script import DetikNewsApi
 
 app = Flask(__name__)
 interpreter = tf.lite.Interpreter(model_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "model.tflite"))
@@ -39,30 +38,6 @@ def predict():
     except Exception as e:
         return jsonify({"error": True, "message": f"An unexpected error occurred: {str(e)}"}), 500
 
-
-DN_API = DetikNewsApi()
-@app.route('/news', methods=['GET'])
-def news():
-    qs = request.args.get("q", default="diabet", type=str)
-    detail = request.args.get("detail", default="false", type=str).lower() in ["true", "1"]
-    limit = request.args.get("limit", default=None, type=int)
-
-    if not qs:
-        return (
-            jsonify({"status": 400, "error": "Query parameter 'q' is required."}),
-            400,
-        )
-
-    try:
-        search_result = DN_API.search(qs, detail=detail, limit=limit)
-        return (
-            jsonify(
-                {"status": 200, "data": search_result, "length": len(search_result)}
-            ),
-            200,
-        )
-    except Exception as e:
-        return jsonify({"status": 500, "error": str(e)}), 500
 
 @app.route('/', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'])
 @app.route('/index', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'])
