@@ -58,7 +58,7 @@ This project utilizes several libraries:
    git clone https://github.com/DiaBite-Bangkit-2024/CC.git
    ```
 
-2. Change directory to Model 1 (`tflask-api`) folder
+2. Change directory to Flask App (`tflask-api`) folder
 
    ```
    cd tflask-api
@@ -98,7 +98,7 @@ This project utilizes several libraries:
    git clone https://github.com/DiaBite-Bangkit-2024/CC.git
    ```
 
-2. Change directory to Model 1 (`nodexpress-api`) folder
+2. Change directory to Node.js App (`nodexpress-api`) folder
 
    ```
    cd nodexpress-api
